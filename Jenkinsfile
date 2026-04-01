@@ -2,27 +2,15 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "devops-app"
+        IMAGE_NAME = "devops-lab-app"
         VERSION = ""
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/lesantivanez/lab09releasemanagement.git'
-            }
-        }
-
-        stage('Install dependencies') {
-            steps {
-                sh 'cd app && npm install'
-            }
-        }
-
-        stage('Run tests') {
-            steps {
-                echo "Simulando tests..."
+                git 'https://github.com/lesantivanez/lab09releasemanagement.git'
             }
         }
 
@@ -33,25 +21,14 @@ pipeline {
                         script: "date +%Y.%m.%d.%H%M",
                         returnStdout: true
                     ).trim()
-                    env.VERSION = VERSION
+                    env.APP_VERSION = VERSION
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${VERSION} -f docker/Dockerfile ."
-            }
-        }
-
-        stage('Tag Git Release') {
-            steps {
-                sh """
-                git config user.email "jenkins@local"
-                git config user.name "jenkins"
-                git tag v${VERSION}
-                git push origin v${VERSION}
-                """
+                sh "docker build -t ${IMAGE_NAME}:${VERSION} ."
             }
         }
 
@@ -60,7 +37,16 @@ pipeline {
                 sh """
                 export APP_VERSION=${VERSION}
                 docker compose down
-                docker compose up -d
+                docker compose up -d --build
+                """
+            }
+        }
+
+        stage('Tag Release') {
+            steps {
+                sh """
+                git tag v${VERSION}
+                git push origin v${VERSION}
                 """
             }
         }
