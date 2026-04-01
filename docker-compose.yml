@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: devops_app
+    ports:
+      - "3000:3000"
+    environment:
+      - APP_VERSION=${APP_VERSION}
