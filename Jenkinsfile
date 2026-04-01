@@ -99,8 +99,8 @@ pipeline {
                     echo "Switching traffic from ${active} to ${target}"
 
                     sh """
-                    sed -i "s/server ${active}:3000;/# server ${active}:3000;/" nginx.conf
-                    sed -i "s/# server ${target}:3000;/server ${target}:3000;/" nginx.conf
+                    sed -i 's|server ${active}:3000;|# server ${active}:3000;|' nginx.conf
+                    sed -i 's|# server ${target}:3000;|server ${target}:3000;|' nginx.conf
 
                     docker compose exec nginx nginx -s reload
                     """
