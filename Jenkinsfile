@@ -128,7 +128,6 @@ pipeline {
                 git config user.name "jenkins"
 
                 git tag v${VERSION}
-                git push origin v${VERSION}
                 """
             }
         }
